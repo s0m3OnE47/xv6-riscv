@@ -44,12 +44,35 @@ sys_sbrk(void)
   int addr;
   int n;
 
+  if (argint(0, &n) < 0)
+    return -1;
+  addr = myproc()->sz;
+  if (n >= 0 && n + myproc()->sz < ((MAXVA) - (2 * PGSIZE))) {
+    myproc()->sz = myproc()->sz + n;
+  }
+
+  else if (n > 0 && n + myproc()->sz > ((MAXVA) - (2 * PGSIZE))) {
+    printf("Process cannot have that much size\n");
+  }
+
+  else if (n < 0 && myproc()->sz - n > 0) {
+    myproc()->sz = uvmdealloc(myproc()->pagetable, myproc()->sz, myproc()->sz + n);
+  }
+
+  else if (myproc()->sz - n <= 0) {
+    printf("There is no sufficient space to free\n");
+    return -1;
+  }
+  return addr;
+
+/*
   if(argint(0, &n) < 0)
     return -1;
   addr = myproc()->sz;
   if(growproc(n) < 0)
     return -1;
   return addr;
+*/
 }
 
 uint64
