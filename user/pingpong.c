@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
 	if (pid == 0) {
 		close(parent_fd[1]);	// Close unused write end
 		read(parent_fd[0], ping, strlen(msg));	// Child process reads from parent_fd
-		printf("%d: received ping = %s\n", getpid(), ping);
+		printf("%d: received ping\n", getpid());
 		close(parent_fd[0]);	// Close unused read end
 		close(child_fd[0]);		// Close unused read end
 		write(child_fd[1], msg, strlen(msg));	// Child process writes to child_fd
@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
 		wait();			// Prevents child becoming zombie
 		close(child_fd[1]);		// Close unused write end
 		read(child_fd[0], pong, strlen(msg));	// Parent process reads from child-fd
-		printf("%d: received pong = %s\n", getpid(), pong);
+		printf("%d: received pong\n", getpid());
 		close(child_fd[0]);		// Close unused read end
 		close(child_fd[0]);
 	}

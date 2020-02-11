@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
                 n=read(parent_fd[0], &prime, sizeof(prime));	
             }
             close(parent_fd[0]);
-            printf("Prime %d\n", firstPrimeOfNewProcess);
+            printf("prime %d\n", firstPrimeOfNewProcess);
         }
         else {				// Parent writes number for child to read
             close(parent_fd[0]);	// Closing of unused end
