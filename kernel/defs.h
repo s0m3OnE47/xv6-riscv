@@ -62,6 +62,7 @@ void            ramdiskrw(struct buf*);
 void*           kalloc(void);
 void            kfree(void *);
 void            kinit();
+void 			incrementRef(uint64);
 
 // log.c
 void            initlog(int, struct superblock*);
@@ -171,14 +172,15 @@ uint64          walkaddr(pagetable_t, uint64);
 int             copyout(pagetable_t, uint64, char *, uint64);
 int             copyin(pagetable_t, char *, uint64, uint64);
 int             copyinstr(pagetable_t, char *, uint64, uint64);
-
+int 			createPageforCOW(pagetable_t,uint64);
+pte_t* 			checkPTE(pagetable_t, uint64);
 // plic.c
 void            plicinit(void);
 void            plicinithart(void);
 uint64          plic_pending(void);
 int             plic_claim(void);
 void            plic_complete(int);
-
+pte_t *			walk(pagetable_t, uint64, int);
 // virtio_disk.c
 void            virtio_disk_init(int);
 void            virtio_disk_rw(int, struct buf *, int);
