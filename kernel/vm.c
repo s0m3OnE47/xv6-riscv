@@ -379,7 +379,7 @@ copyout(pagetable_t pagetable, uint64 dstva, char *src, uint64 len)
   while(len > 0){
     va0 = PGROUNDDOWN(dstva);
     
-    if(va0 > MAXVA){
+    if(va0 >= MAXVA){
       return -1;
     }
   
