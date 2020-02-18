@@ -29,7 +29,7 @@ def test_file():
 def test_usertests():
     r.run_qemu(shell_script([
         'usertests'
-    ]), timeout=150)
+    ]), timeout=300)
     r.match('^ALL TESTS PASSED$')
 
 @test(1, "time")

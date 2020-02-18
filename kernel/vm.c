@@ -376,12 +376,13 @@ copyout(pagetable_t pagetable, uint64 dstva, char *src, uint64 len)
   pte_t *pte;
   char * mem;
 
-  if(dstva > MAXVA){
-    return -1;
-  }
-
   while(len > 0){
     va0 = PGROUNDDOWN(dstva);
+    
+    if(va0 > MAXVA){
+      return -1;
+    }
+  
     pa0 = walkaddr(pagetable, va0);
     pte = walk(pagetable, va0,0);
     if(PTE_FLAGS(*pte) & PTE_COW){
