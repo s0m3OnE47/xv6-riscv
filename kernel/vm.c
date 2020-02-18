@@ -373,9 +373,26 @@ int
 copyout(pagetable_t pagetable, uint64 dstva, char *src, uint64 len)
 {
   uint64 n, va0, pa0;
+  pte_t *pte;
+  char * mem;
+
+  if(dstva > MAXVA){
+    return -1;
+  }
 
   while(len > 0){
     va0 = PGROUNDDOWN(dstva);
+    pa0 = walkaddr(pagetable, va0);
+    pte = walk(pagetable, va0,0);
+    if(PTE_FLAGS(*pte) & PTE_COW){
+      mem = kalloc();
+      memmove(mem, (char*)pa0, PGSIZE);
+      if(mappages(pagetable,va0 , PGSIZE, (uint64)mem, PTE_R|PTE_W|PTE_X|PTE_U) != 0){
+        printf("copyout: failed \n");
+        return -1;
+      }
+      kfree((void*)pa0);
+    }
     pa0 = walkaddr(pagetable, va0);
     if(pa0 == 0)
       return -1;
