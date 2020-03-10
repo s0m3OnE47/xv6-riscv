@@ -77,9 +77,16 @@ usertrap(void)
     exit(-1);
 
   // give up the CPU if this is a timer interrupt.
-  if(which_dev == 2)
-    yield();
+  if(which_dev == 2){
 
+    p->alarmTicks++;
+    if(p->alarmTicks == p->maxAlarmTicks){
+      p->tf->epc = p->handler;
+    }
+    else {
+      yield();
+    }  
+  } 
   usertrapret();
 }
 
