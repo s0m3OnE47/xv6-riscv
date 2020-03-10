@@ -170,9 +170,7 @@ main(int argc, char *argv[])
   a_started = b_started = c_started = 0;
   a_n = b_n = c_n = 0;
   thread_init();
-  printf("1\n");
   thread_create(thread_a);
-  printf("2\n");
   thread_create(thread_b);
   thread_create(thread_c);
   thread_schedule();
