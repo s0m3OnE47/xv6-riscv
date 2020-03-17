@@ -105,6 +105,8 @@ sys_sigalarm(void)
     return -1;
   if(argint(1, &handler)<0)
     return -1;
+  if(ticks < 0)
+	  return -1;
   proc = myproc();
   proc->maxAlarmTicks = ticks;
   proc->alarmTicks = 0;
@@ -115,5 +117,10 @@ sys_sigalarm(void)
 uint64
 sys_sigreturn(void)
 {
-  return 0;
+    struct proc* p = myproc();
+    if (p->alarmTicks!= -1)
+	    return -1;
+    p->alarmTicks = 0;
+    memmove(p->tf, &p->alarmTrap, sizeof(p->alarmTrap));
+    return 0;
 }

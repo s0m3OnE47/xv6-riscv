@@ -108,4 +108,5 @@ struct proc {
   int maxAlarmTicks;
   int alarmTicks;
   uint64 handler;
+  struct trapframe alarmTrap;
 };
