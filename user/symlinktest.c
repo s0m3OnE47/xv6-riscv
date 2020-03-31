@@ -22,6 +22,7 @@ main(int argc, char *argv[])
   cleanup();
   testsymlink();
   concur();
+  //printf("Exit Status = %d\n",failed);
   exit(failed);
 }
 
@@ -64,16 +65,20 @@ testsymlink(void)
 
   mkdir("/testsymlink");
 
+  printf("\tCreating a\n");
   fd1 = open("/testsymlink/a", O_CREATE | O_RDWR);
   if(fd1 < 0) fail("failed to open a");
 
+  printf("\tLinking b -> a\n");
   r = symlink("/testsymlink/a", "/testsymlink/b");
   if(r < 0)
     fail("symlink b -> a failed");
 
+  printf("\tWriting to a\n");
   if(write(fd1, buf, sizeof(buf)) != 4)
     fail("failed to write to a");
 
+  printf("\tReading from b\n");
   if (stat_slink("/testsymlink/b", &st) != 0)
     fail("failed to stat b");
   if(st.type != T_SYMLINK)
@@ -86,22 +91,29 @@ testsymlink(void)
   if (c != 'a')
     fail("failed to read bytes from b");
 
+  printf("\tRemoving a\n");
   unlink("/testsymlink/a");
   if(open("/testsymlink/b", O_RDWR) >= 0)
     fail("Should not be able to open b after deleting a");
 
+  printf("\tLinking a -> b\n");
   r = symlink("/testsymlink/b", "/testsymlink/a");
   if(r < 0)
     fail("symlink a -> b failed");
 
+  printf("\tAttempting to open b (cycle)\n");
   r = open("/testsymlink/b", O_RDWR);
   if(r >= 0)
     fail("Should not be able to open b (cycle b->a->b->..)\n");
+  if(r == -4)
+    printf("\tCycle b->a->b->.. as expected\n");
   
+  printf("\tSymlinking c to nonexistent file\n");
   r = symlink("/testsymlink/nonexistent", "/testsymlink/c");
   if(r != 0)
     fail("Symlinking to nonexistent file should succeed\n");
 
+  printf("\tCreating symlink chain 1->2->3->4\n");
   r = symlink("/testsymlink/2", "/testsymlink/1");
   if(r) fail("Failed to link 1->2");
   r = symlink("/testsymlink/3", "/testsymlink/2");
@@ -112,6 +124,7 @@ testsymlink(void)
   close(fd1);
   close(fd2);
 
+  printf("\tWriting to 1, Reading from 4, Checking for correctness\n");
   fd1 = open("/testsymlink/4", O_CREATE | O_RDWR);
   if(fd1<0) fail("Failed to create 4\n");
   fd2 = open("/testsymlink/1", O_RDWR);
