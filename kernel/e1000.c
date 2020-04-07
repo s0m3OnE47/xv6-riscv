@@ -95,6 +95,24 @@ e1000_init(uint32 *xregs)
 int
 e1000_transmit(struct mbuf *m)
 {
+  int pos = regs[E1000_TDT];			// Current ring position
+  struct tx_desc *desc = &tx_ring[pos];		
+  if(!(desc->status & E1000_TXD_STAT_DD)){	// Is ring overflowing?
+    return -1;					// Previous transmission is still in flight
+  }
+  struct mbuf *buf = tx_mbufs[pos];		
+  if(buf){
+    mbuffree(buf);				// Free the last mbuf transmitted
+  }
+  desc->addr = (uint64)m->head;			// New mbuf head
+  desc->length = m->len;			// New mbuf length
+  desc->cmd |= E1000_TXD_CMD_EOP;		// Set End Of Packet flag
+  tx_mbufs[pos] = m;				
+  regs[E1000_TDT] = (pos + 1) % TX_RING_SIZE;	// Update ring position
+  if(!regs[E1000_TDT])				// No desc available to transmit mbuf
+	  return -1;				// Failure. Caller can free the mbuf
+  printf("Sending\n");
+  return 0; 					// Successfully added mbuf to the ring
   //
   // Your code here.
   //
@@ -102,12 +120,28 @@ e1000_transmit(struct mbuf *m)
   // the TX descriptor ring so that the e1000 sends it. Stash
   // a pointer so that it can be freed after sending.
   //
-  return -1;
+  // return -1;
 }
 
 static void
 e1000_recv(void)
 {
+  while (1) {
+    int next_pos = (regs[E1000_RDT] + 1) % RX_RING_SIZE;	// Get ring position
+    struct rx_desc *desc = &rx_ring[next_pos];			
+    if (!(desc->status & E1000_RXD_STAT_DD)) {			// New packet available?
+      return;							// If not, Stop
+    }
+
+    mbufput(rx_mbufs[next_pos], desc->length);	// Update mbuf's length
+    net_rx(rx_mbufs[next_pos]);			// mbuf to protocol layer
+    struct mbuf *buf = mbufalloc(0);		// New mbuf allocated
+    desc->addr = (uint64)buf->head;		// head to desc
+    desc->status = 0;				// Clear status bit
+    rx_mbufs[next_pos] = buf;			// Update register
+    regs[E1000_RDT] = next_pos;			
+    printf("Received\n");
+  }
   //
   // Your code here.
   //
