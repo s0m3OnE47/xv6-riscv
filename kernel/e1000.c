@@ -111,7 +111,7 @@ e1000_transmit(struct mbuf *m)
   regs[E1000_TDT] = (pos + 1) % TX_RING_SIZE;	// Update ring position
   if(!regs[E1000_TDT])				// No desc available to transmit mbuf
 	  return -1;				// Failure. Caller can free the mbuf
-  printf("Sending\n");
+  // printf("Sending\n");
   return 0; 					// Successfully added mbuf to the ring
   //
   // Your code here.
@@ -126,7 +126,7 @@ e1000_transmit(struct mbuf *m)
 static void
 e1000_recv(void)
 {
-  while (1) {
+  // while (1) {
     int next_pos = (regs[E1000_RDT] + 1) % RX_RING_SIZE;	// Get ring position
     struct rx_desc *desc = &rx_ring[next_pos];			
     if (!(desc->status & E1000_RXD_STAT_DD)) {			// New packet available?
@@ -140,8 +140,8 @@ e1000_recv(void)
     desc->status = 0;				// Clear status bit
     rx_mbufs[next_pos] = buf;			// Update register
     regs[E1000_RDT] = next_pos;			
-    printf("Received\n");
-  }
+  //  printf("Received\n");
+  //}
   //
   // Your code here.
   //
