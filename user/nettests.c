@@ -233,13 +233,17 @@ main(int argc, char *argv[])
   printf("OK\n");
 
   printf("testing single-process pings: ");
-  for (i = 0; i < 100; i++)
+  for (i = 0; i < 100; i++){
     ping(2000, dport, 1);
+  }
   printf("OK\n");
 
   printf("testing multi-process pings: ");
   for (i = 0; i < 10; i++){
     int pid = fork();
+    if (pid < 0) {
+      printf("fork(): Fork failed\n");
+    }
     if (pid == 0){
       ping(2000 + i + 1, dport, 1);
       exit(0);
